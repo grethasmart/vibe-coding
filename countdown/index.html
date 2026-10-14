@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halloween Countdown</title>
+
+<style>
+/* Page background and centering.
+   This is the "sky." It's a twilight purple gradient, lighter than the old
+   near-black so the bats read clearly against it. Lighter color is at the top,
+   slightly deeper toward the bottom, like a real dusk sky.
+   To lighten or darken the whole sky, nudge these two hex values together. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(#574780, #362a4d);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+/* Layer that holds all the flying bats.
+   It sits behind the card and ignores clicks so it never gets in the way. */
+.bat-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Each bat. It starts off the right edge and flies to the left edge.
+   The flap animation squishes it to fake wing-flapping. */
+.bat {
+  position: absolute;
+  width: 60px;
+  animation-name: fly-across, flap;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+}
+
+/* Moves a bat from just past the right edge to just past the left edge. */
+@keyframes fly-across {
+  from {
+    transform: translateX(105vw);
+  }
+  to {
+    transform: translateX(-15vw);
+  }
+}
+
+/* Fakes the wing flap by squishing the bat vertically and back. */
+@keyframes flap {
+  0% {
+    scale: 1 1;
+  }
+  50% {
+    scale: 1 0.55;
+  }
+  100% {
+    scale: 1 1;
+  }
+}
+
+/* The card everything sits inside.
+   z-index 1 keeps it above the bat layer. Warmer border and softer shadow
+   than before to feel more finished. */
+.card {
+  position: relative;
+  z-index: 1;
+  background: #2a2040;
+  width: 100%;
+  max-width: 460px;
+  padding: 28px 28px 36px;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
+  border: 1px solid #493a68;
+}
+
+/* The pumpkin photo at the top of the card, framed as a hero image.
+   object-fit cover crops it neatly to fill the frame at any screen size.
+   Change the height to make the photo band taller or shorter.
+   To swap the picture, replace the file or change the src in the HTML below. */
+.hero {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Heading at the top of the card.
+   Serif gives it an editorial, put-together feel. The orange is pulled
+   from the pumpkins in your photo, a burnt terracotta rather than neon. */
+h1 {
+  margin: 0 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #e0752f;
+}
+
+/* Small line under the heading showing the target date. */
+.subtitle {
+  margin: 0 0 26px;
+  font-size: 14px;
+  color: #c7bbe0;
+}
+
+/* The row that holds the four countdown boxes. */
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Each box holds one number (days, hours, etc).
+   Slightly lighter than the card so the numbers stand out. */
+.unit {
+  background: #35284f;
+  border-radius: 12px;
+  padding: 16px 8px;
+  flex: 1;
+}
+
+/* The big number inside each box. Same burnt orange as the heading. */
+.unit .value {
+  font-size: 34px;
+  font-weight: 700;
+  color: #e0752f;
+  line-height: 1;
+}
+
+/* The small label under each number (Days, Hours, etc). */
+.unit .label {
+  margin-top: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #b0a2cf;
+}
+
+/* The message that replaces the timer once the date arrives.
+   Hidden by default, shown by the script on Halloween.
+   Text only now, no emoji, to match the cleaner look. */
+#done-message {
+  display: none;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: #e0752f;
+  padding: 14px 0;
+}
+</style>
+</head>
+<body>
+
+<!-- Bat layer. Each bat has its own vertical position (top), size (width),
+     how long it takes to cross (first duration number), how fast it flaps
+     (second duration number), and a start delay so they aren't bunched up.
+
+     To ADD a bat: copy one whole .bat block and change its numbers.
+     To REMOVE a bat: delete one whole .bat block. -->
+<div class="bat-layer">
+
+  <!-- Bat 1: high up, medium size, medium speed -->
+  <div class="bat" style="top: 12%; width: 55px; animation-duration: 14s, 0.4s; animation-delay: 0s, 0s;">
+    <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0b0710" d="M50 30 C46 18 40 20 34 26 C30 14 18 10 8 18 C16 18 18 26 14 32 C22 28 28 30 32 36 C38 30 44 30 50 38 C56 30 62 30 68 36 C72 30 78 28 86 32 C82 26 84 18 92 18 C82 10 70 14 66 26 C60 20 54 18 50 30 Z"/>
+    </svg>
+  </div>
+
+  <!-- Bat 2: middle height, larger, slower -->
+  <div class="bat" style="top: 40%; width: 75px; animation-duration: 20s, 0.5s; animation-delay: 3s, 0s;">
+    <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0b0710" d="M50 30 C46 18 40 20 34 26 C30 14 18 10 8 18 C16 18 18 26 14 32 C22 28 28 30 32 36 C38 30 44 30 50 38 C56 30 62 30 68 36 C72 30 78 28 86 32 C82 26 84 18 92 18 C82 10 70 14 66 26 C60 20 54 18 50 30 Z"/>
+    </svg>
+  </div>
+
+  <!-- Bat 3: lower, small, faster -->
+  <div class="bat" style="top: 70%; width: 45px; animation-duration: 11s, 0.35s; animation-delay: 6s, 0s;">
+    <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0b0710" d="M50 30 C46 18 40 20 34 26 C30 14 18 10 8 18 C16 18 18 26 14 32 C22 28 28 30 32 36 C38 30 44 30 50 38 C56 30 62 30 68 36 C72 30 78 28 86 32 C82 26 84 18 92 18 C82 10 70 14 66 26 C60 20 54 18 50 30 Z"/>
+    </svg>
+  </div>
+
+  <!-- Bat 4: near top, tiny, slow drifter -->
+  <div class="bat" style="top: 26%; width: 38px; animation-duration: 24s, 0.6s; animation-delay: 9s, 0s;">
+    <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#0b0710" d="M50 30 C46 18 40 20 34 26 C30 14 18 10 8 18 C16 18 18 26 14 32 C22 28 28 30 32 36 C38 30 44 30 50 38 C56 30 62 30 68 36 C72 30 78 28 86 32 C82 26 84 18 92 18 C82 10 70 14 66 26 C60 20 54 18 50 30 Z"/>
+    </svg>
+  </div>
+
+</div>
+
+<!-- Main card -->
+<div class="card">
+
+  <!-- Pumpkin hero photo, in place of the old emoji row.
+       IMPORTANT: this image file must sit in the same folder as this HTML file,
+       and be named exactly pumpkins.jpg. If your file has a different name,
+       either rename it to pumpkins.jpg or change the name below to match. -->
+  <img class="hero" src="pumpkins.jpg" alt="Three carved jack-o-lanterns in a forest">
+
+  <h1>Halloween Countdown</h1>
+
+  <!-- This line's text is filled in by the script so it always
+       matches whatever target date you set below. -->
+  <p class="subtitle" id="subtitle"></p>
+
+  <!-- The four countdown boxes.
+       The numbers are updated every second by the script. -->
+  <div class="countdown" id="countdown">
+
+    <div class="unit">
+      <div class="value" id="days">0</div>
+      <div class="label">Days</div>
+    </div>
+
+    <div class="unit">
+      <div class="value" id="hours">0</div>
+      <div class="label">Hours</div>
+    </div>
+
+    <div class="unit">
+      <div class="value" id="minutes">0</div>
+      <div class="label">Minutes</div>
+    </div>
+
+    <div class="unit">
+      <div class="value" id="seconds">0</div>
+      <div class="label">Seconds</div>
+    </div>
+
+  </div>
+
+  <!-- Shown only once the countdown reaches zero. -->
+  <div id="done-message">Happy Halloween</div>
+
+</div>
+
+<script>
+// ============================================================
+// THE DATE LIVES HERE. This is the only line you change.
+// Format is (year, month, day). Note: months are zero-based in
+// JavaScript, so October is 9, NOT 10. That is why the 9 below
+// means October. Day 31 and hour set to midnight.
+// Example: for December 25 2026 you'd write (2026, 11, 25).
+const TARGET_DATE = new Date(2026, 9, 31, 0, 0, 0);
+// ============================================================
+
+// Grab the elements we update, once, so we're not re-querying every tick.
+const daysEl = document.getElementById("days");
+const hoursEl = document.getElementById("hours");
+const minutesEl = document.getElementById("minutes");
+const secondsEl = document.getElementById("seconds");
+const countdownEl = document.getElementById("countdown");
+const doneEl = document.getElementById("done-message");
+const subtitleEl = document.getElementById("subtitle");
+
+// Fill in the subtitle line so it always matches TARGET_DATE.
+// toLocaleDateString turns the date into a readable label like "October 31, 2026".
+subtitleEl.textContent = "Counting down to " + TARGET_DATE.toLocaleDateString("en-US", {
+  weekday: "long",
+  year: "numeric",
+  month: "long",
+  day: "numeric"
+});
+
+// Pads a number to two digits so 5 shows as "05".
+// Days is left unpadded since it can be three digits.
+function pad(number) {
+  return String(number).padStart(2, "0");
+}
+
+// Runs once per second. Works out how much time is left and updates the boxes.
+function updateCountdown() {
+
+  // Difference between the target and right now, in milliseconds.
+  const now = new Date();
+  const diff = TARGET_DATE - now;
+
+  // If the target has arrived or passed, hide the timer and show the message.
+  if (diff <= 0) {
+    countdownEl.style.display = "none";
+    doneEl.style.display = "block";
+    return;
+  }
+
+  // Convert the millisecond difference into days, hours, minutes, seconds.
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  // Write the numbers into the boxes.
+  daysEl.textContent = days;
+  hoursEl.textContent = pad(hours);
+  minutesEl.textContent = pad(minutes);
+  secondsEl.textContent = pad(seconds);
+}
+
+// Run it immediately so there's no blank second when the page loads.
+updateCountdown();
+
+// Then run it again every second so it moves on its own.
+setInterval(updateCountdown, 1000);
+</script>
+
+</body>
+</html>
