@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Notes - Shrimp & Broccoli</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background-color: #f4f1eb; /* Warm cream background */
+            color: #2c2c2c;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .font-editorial {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Custom bullet points for the notes */
+        ul.notes-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        ul.notes-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        ul.notes-list li::before {
+            content: "✦"; /* Elegant star/diamond bullet */
+            position: absolute;
+            left: 0;
+            top: 0.1rem;
+            color: #8b7355; 
+            font-size: 0.9rem;
+        }
+
+        /* CSS trick to create a lined paper effect */
+        .lined-paper {
+            background-image: repeating-linear-gradient(transparent, transparent 31px, #e5e0d8 31px, #e5e0d8 32px);
+            min-height: 400px; /* Ensures it stretches down the page */
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10">
+
+    <main class="max-w-[800px] w-full bg-[#fdfbf7] shadow-2xl overflow-hidden flex flex-col border border-[#e5e0d8] p-8 sm:p-12 min-h-[85vh]">
+        
+        <!-- Header Section -->
+        <header class="mb-10 text-center border-b-2 border-[#1a1a1a] pb-6">
+            <h4 class="text-xs sm:text-sm tracking-widest uppercase text-[#8b7355] font-semibold mb-3">
+                Recipe Notes
+            </h4>
+            <h1 class="text-4xl md:text-5xl font-editorial font-bold text-[#1a1a1a] tracking-tight">
+                Shrimp & Broccoli
+            </h1>
+        </header>
+
+        <!-- Pre-filled Notes Section -->
+        <section class="mb-4">
+            <h2 class="text-xl font-editorial italic text-[#1a1a1a] mb-5">Chef's Tips</h2>
+            <ul class="notes-list text-sm md:text-base text-gray-700 leading-relaxed space-y-4">
+                <li>
+                    <strong class="font-medium text-[#1a1a1a]">Chili oils I like:</strong> Momofuku Original Chili Crunch, and Fly By Jing Sichuan Chili Crisp <span class="italic text-gray-500">(note: this one is extra spicy!)</span>.
+                </li>
+                <li>
+                    Fresh ginger adds a little extra flavor. If you don't have fresh ginger, you can use ginger powder to give it some extra umph.
+                </li>
+                <li>
+                    Sesame seeds are also nice to use as a finishing garnish.
+                </li>
+            </ul>
+        </section>
+
+        <!-- Blank Lined Notepad Section -->
+        <section class="flex-grow flex flex-col mt-4">
+            <h2 class="text-xl font-editorial italic text-[#1a1a1a] mb-2">Personal Adjustments</h2>
+            <div class="lined-paper flex-grow w-full"></div>
+        </section>
+
+        <!-- Footer / Back Link -->
+        <footer class="mt-12 pt-6 border-t border-[#e5e0d8] text-center">
+            <a href="index.html" class="inline-flex items-center text-sm font-medium tracking-widest uppercase text-[#1a1a1a] hover:text-[#8b7355] transition-colors group">
+                <span class="mr-2 transform group-hover:-translate-x-1 transition-transform">&larr;</span> 
+                Back to Recipe
+            </a>
+        </footer>
+
+    </main>
+
+</body>
+</html>

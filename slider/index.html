@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Family</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Great+Vibes&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            /* Soft, warm paper-like background */
+            background-color: #f7f3ed;
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(#e5ddd0 1px, transparent 1px);
+            background-size: 32px 32px;
+            overflow-x: hidden;
+        }
+
+        .script-font {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .caption-font {
+            font-family: 'Caveat', cursive;
+            font-size: 1.75rem;
+            color: #374151;
+            text-align: center;
+            margin-top: 0.75rem;
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        /* Polaroid card styling */
+        .photo-card {
+            background: white;
+            padding: 1rem 1rem 0.5rem 1rem; /* Adjusted for caption */
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eaeaea;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            /* Ensures the first and last items can be centered in the viewport */
+            padding-left: max(2rem, calc(50vw - 190px));
+            padding-right: max(2rem, calc(50vw - 190px));
+            padding-top: 2rem;
+            padding-bottom: 4rem; /* Room for shadows */
+            gap: 2.5rem;
+        }
+
+        /* Hide scrollbar for a cleaner look */
+        .carousel-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+        .carousel-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .snap-item {
+            scroll-snap-align: center;
+        }
+
+        /* Subtle alternating rotations to mimic scattered photos */
+        .snap-item:nth-child(odd) .photo-card {
+            transform: rotate(-1.5deg);
+        }
+        .snap-item:nth-child(even) .photo-card {
+            transform: rotate(2deg);
+        }
+        
+        /* Interactive hover effect */
+        .snap-item:hover .photo-card {
+            transform: scale(1.03) rotate(0deg);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+        
+        /* Custom Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #5a4d41;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #dcd3c6;
+            border-radius: 2px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pt-12 md:pt-20">
+
+    <header class="text-center mb-8 shrink-0 px-4">
+        <h1 class="script-font text-6xl md:text-7xl text-[#5a4d41] drop-shadow-sm font-normal tracking-wide">
+            My Family
+        </h1>
+    </header>
+
+    <!-- The container is now empty in the HTML; JavaScript will fill it -->
+    <div class="carousel-container w-full"></div>
+
+    <!-- Visible Slider for Navigation -->
+    <div class="w-full max-w-md mx-auto px-8 pb-12 shrink-0">
+        <input type="range" id="photo-slider" min="0" max="4" value="0" class="w-full" aria-label="Photo slider">
+    </div>
+
+    <script>
+        // 1. THE CONTENT LIST: All picture data sits at the very top of the script
+        const familyPhotos = [
+            {
+                src: "pic1.jpg",
+                alt: "Chase in the park",
+                caption: "Chase"
+            },
+            {
+                src: "pic2.jpg",
+                alt: "Carter peace sign",
+                caption: "Carter"
+            },
+            {
+                src: "pic3.jpg",
+                alt: "Chloe on the swings",
+                caption: "Chloe"
+            },
+            {
+                src: "pic4.jpg",
+                alt: "Tennis Game",
+                caption: "Tennis Champs"
+            },
+            {
+                src: "pic5.jpg",
+                alt: "3 kids at the park",
+                caption: "My World"
+            }
+        ];
+
+        // 2. THE LOGIC UNDERNEATH: The code reads from the list above
+        const carousel = document.querySelector('.carousel-container');
+        const slider = document.getElementById('photo-slider');
+        let carouselContent = '';
+
+        // Loop through the list and build the HTML for each card
+        for (let i = 0; i < familyPhotos.length; i++) {
+            const photo = familyPhotos[i];
+            carouselContent += `
+                <div class="snap-item shrink-0 w-[85vw] max-w-[380px]">
+                    <div class="photo-card">
+                        <div class="w-full aspect-[4/5] overflow-hidden bg-gray-100 rounded-sm">
+                            <img src="${photo.src}" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/400x500/e2e8f0/64748b?text=${photo.src}&font=montserrat'" 
+                                 alt="${photo.alt}" class="w-full h-full object-cover">
+                        </div>
+                        <p class="caption-font">${photo.caption}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Inject the built HTML into the container
+        carousel.innerHTML = carouselContent;
+
+        // Now that the items exist, grab them for the slider logic
+        const items = document.querySelectorAll('.snap-item');
+
+        // Sync slider when carousel is scrolled naturally
+        carousel.addEventListener('scroll', () => {
+            const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+            if (maxScroll === 0) return;
+            
+            const scrollLeft = carousel.scrollLeft;
+            const percentage = scrollLeft / maxScroll;
+            
+            // Calculate which photo (0 to 4) is currently in focus
+            const index = Math.round(percentage * (items.length - 1));
+            
+            // Update slider if it doesn't match the current focus to avoid jitter
+            if (slider.value != index) {
+                slider.value = index;
+            }
+        });
+
+        // Sync carousel when slider is dragged manually
+        slider.addEventListener('input', (e) => {
+            const index = parseInt(e.target.value, 10);
+            const item = items[index];
+            
+            // Calculate perfect center position for the targeted photo
+            const centerPosition = item.offsetLeft - (carousel.clientWidth / 2) + (item.clientWidth / 2);
+            
+            carousel.scrollTo({
+                left: centerPosition,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>
