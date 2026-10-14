@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gretha Smart | An Editorial Profile</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #222;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #111;
+            color: #fff;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Georgia', serif;
+            font-size: 3em;
+            margin: 0;
+            letter-spacing: 1.5px;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #ccc;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .interview-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 80px;
+            align-items: center;
+        }
+        .interview-section.reverse {
+            direction: rtl;
+        }
+        .interview-section.reverse > * {
+            direction: ltr;
+        }
+        .text-block {
+            background: #fff;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        h2 {
+            font-family: 'Georgia', serif;
+            font-size: 1.6em;
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        .answer {
+            font-size: 1.05em;
+            color: #555;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .image-grid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .span-two {
+            grid-column: span 2;
+        }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
+        @media (max-width: 800px) {
+            .interview-section {
+                grid-template-columns: 1fr;
+            }
+            .interview-section.reverse {
+                direction: ltr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Gretha Smart</h1>
+        <p class="subtitle">Broadcaster | Brand Strategist | Web Developer</p>
+    </header>
+
+    <div class="container">
+
+        <!-- Section 1: Brand Marketing -->
+        <div class="interview-section">
+            <div class="text-block">
+                <h2>Q: What goes into crafting the perfect brand experience for names like Moët Hennessy and Campari?</h2>
+                <p class="answer">I worked on the 123 Spritz campaign for Aperol, taking branded Fiats across the country for various activations. For Espolón Tequila, we hosted experiential bartender cocktail fights. With Moët Hennessy, we traveled to Kentucky as VIP sponsors for the PGA, creating special menu events—I even got a golf lesson with Arnold Palmer. Having the right specialty cocktail menu can truly transform an event.</p>
+            </div>
+            <div class="image-grid">
+                <img src="apollo.jpg" alt="Apollo Theater Gala with Belvedere" class="span-two">
+                <img src="fiat.jpg" alt="Aperol Spritz Fiat Campaign">
+                <img src="pga-experience.png" alt="PGA Championship Experience">
+            </div>
+        </div>
+
+        <!-- Section 2: Macy's Parade -->
+        <div class="interview-section reverse">
+            <div class="text-block">
+                <h2>Q: How did working in HR and Learning & Development lead to managing Stormtroopers at the Thanksgiving Day Parade?</h2>
+                <p class="answer">I had the opportunity to manage specific performance groups at the Macy's Thanksgiving Day Parade. My favorite time was managing the Stormtroopers—men with authentic, George Lucas-approved replica costumes. Another year, I managed the Coach float featuring Billy Porter and a circus group. It’s always freezing and incredibly early, but seeing the balloons inflate and watching rehearsals is an awesome experience.</p>
+            </div>
+            <div class="image-grid">
+                <img src="macy-parade.jpg" alt="Macy's Thanksgiving Day Parade Float" class="span-two">
+            </div>
+        </div>
+
+        <!-- Section 3: Media & Tech -->
+        <div class="interview-section">
+            <div class="text-block">
+                <h2>Q: What drives "The News Beat," and how does studying Web and Mobile Development tie into your creative evolution?</h2>
+                <p class="answer">The driving force behind The News Beat is curating local NYC and Caribbean diaspora entertainment news, with the goal of syndicating these segments nationally. Being a full-time web development student allows me to learn coding, editing, and content creation. These skills strengthen my creative work and give me the self-reliance to build and manage my own platforms.</p>
+                <audio controls>
+                    <source src="news-beat.mp3" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+            <div class="image-grid">
+                <img src="development.png" alt="Web Development Desk Setup" class="span-two">
+                <img src="mic-selfie.jpg" alt="In the radio studio">
+                <img src="artist.jpg" alt="Interviewing an artist">
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

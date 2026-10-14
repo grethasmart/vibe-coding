@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me Collage</title>
+    <style>
+        body {
+            background-color: #223f33; 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .collage-container {
+            position: relative;
+            width: 1300px;
+            height: 900px;
+        }
+
+        /* Center Portrait */
+        .main-portrait {
+            position: absolute;
+            top: 20%;
+            left: 40%;
+            width: 320px;
+            z-index: 2;
+        }
+        .main-portrait img {
+            width: 100%;
+            height: auto;
+            border: 12px solid white;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            transform: rotate(-2deg);
+        }
+
+        /* Pink Tape Label */
+        .pink-label {
+            position: absolute;
+            top: 10%;
+            left: 28%;
+            background-color: #f0a3bb;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transform: rotate(-3deg);
+            z-index: 11;
+            text-align: center;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .code-icon {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            background: rgba(255,255,255,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        /* Cute Stickers */
+        .sticker {
+            position: absolute;
+            background-color: #fff9e6;
+            color: #333;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 20px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            z-index: 12;
+        }
+
+        /* Taurus sticker - Moved further to the right */
+        .taurus {
+            top: 26%;
+            left: 27%;
+            transform: rotate(-8deg);
+            background-color: #e2c0e8;
+            color: #4a2b52;
+        }
+
+        /* Reading sticker */
+        .reading {
+            bottom: 25%;
+            left: 68%;
+            transform: rotate(6deg);
+            background-color: #a8dadc;
+            color: #1d3557;
+        }
+
+        /* Airplane Animation positioned inside the Travel polaroid */
+        @keyframes fly {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(10deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        .plane {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 2.5rem;
+            animation: fly 3s infinite ease-in-out;
+            z-index: 20;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        /* Polaroid Frames */
+        .polaroid {
+            position: absolute;
+            background: white;
+            padding: 12px 12px 45px 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease, z-index 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .polaroid:hover {
+            z-index: 50 !important;
+            transform: scale(1.15) rotate(0deg) !important;
+        }
+
+        .polaroid img {
+            width: 170px;
+            height: 170px;
+            object-fit: cover;
+            background-color: #eaeaea; 
+        }
+
+        /* Pistachio Green Captions */
+        .caption {
+            position: absolute;
+            bottom: 12px;
+            background-color: #93c572; 
+            color: white;
+            padding: 5px 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            width: 80%;
+            border-radius: 4px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* Spaced out photo placements */
+        .polaroid.mom {
+            top: 5%;
+            left: 5%;
+            transform: rotate(-6deg);
+            z-index: 5;
+        }
+
+        .polaroid.student {
+            top: 5%;
+            right: 8%;
+            transform: rotate(5deg);
+            z-index: 6;
+        }
+
+        .polaroid.travel {
+            top: 38%;
+            right: 15%;
+            transform: rotate(3deg);
+            z-index: 8;
+        }
+
+        .polaroid.radio {
+            bottom: 8%;
+            right: 3%;
+            transform: rotate(-4deg);
+            z-index: 7;
+        }
+
+        .polaroid.cooking {
+            bottom: 5%;
+            left: 10%;
+            transform: rotate(7deg);
+            z-index: 8;
+        }
+
+        /* Nature polaroid moved further right */
+        .polaroid.nature {
+            top: 42%;
+            left: 12%;
+            transform: rotate(-5deg);
+            z-index: 9;
+        }
+
+        /* Name Bar under main portrait - Updated position and rotation */
+        .name-bar {
+            position: absolute;
+            bottom: 18%; 
+            left: 41%; 
+            background-color: white;
+            color: #93c572;
+            padding: 12px 25px;
+            font-weight: 900;
+            font-size: 1.8rem;
+            transform: rotate(-2deg); 
+            z-index: 15;
+            text-align: center;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="collage-container">
+        
+        <!-- Main Portrait (PNG) -->
+        <div class="main-portrait">
+            <img src="main.png" alt="Main Portrait">
+        </div>
+
+        <!-- Name Bar -->
+        <div class="name-bar">
+            My name is Gretha Smart
+        </div>
+
+        <!-- Stickers -->
+        <div class="sticker taurus">♉︎ I'm a Taurus</div>
+        <div class="sticker reading">I love to read 📚</div>
+
+        <!-- Pink Label Updated Capitalization -->
+        <div class="pink-label">
+            <span class="code-icon">&lt;/&gt;</span> [ I'm a Web and Mobile Development Major <br> at FLCC ]
+        </div>
+
+        <!-- Polaroids -->
+        <div class="polaroid mom">
+            <img src="mom.jpg" alt="My Kids">
+            <div class="caption">I'm a mom</div>
+        </div>
+
+        <div class="polaroid student">
+            <img src="desk.png" alt="My Desk">
+            <div class="caption">I'm a student</div>
+        </div>
+        
+        <!-- Travel Photo -->
+        <div class="polaroid travel">
+            <span class="plane">✈️</span>
+            <img src="travel.jpg" alt="Travel">
+            <div class="caption">I love to travel</div>
+        </div>
+
+        <div class="polaroid radio">
+            <img src="radio.jpg" alt="Radio Host">
+            <div class="caption">I'm a radio host</div>
+        </div>
+
+        <div class="polaroid cooking">
+            <img src="cooking.jpg" alt="Cooking">
+            <div class="caption">I'm a foodie</div>
+        </div>
+
+        <div class="polaroid nature">
+            <img src="nature.jpg" alt="Nature">
+            <div class="caption">I love nature</div>
+        </div>
+
+    </div>
+
+</body>
+</html>
