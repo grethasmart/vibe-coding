@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>URL to QR Code</title>
+
+<!-- QR code library, runs client-side so nothing leaves the browser.
+     To change versions or self-host, swap this src for your own copy of the file. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+/* Page background and centering.
+   Change the background color here to reskin the whole page. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef1ea;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* The card everything sits inside.
+   Adjust max-width to make the card wider or narrower. */
+.card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 360px;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+/* Heading at the top of the card. */
+h1 {
+  margin: 0 0 20px;
+  font-size: 20px;
+  color: #3f4a36;
+}
+
+/* URL text field.
+   Edit border and padding here to change the input look. */
+#url-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 1px solid #cdd3c6;
+  border-radius: 10px;
+  outline: none;
+}
+
+/* Highlight the field when it's focused, in the sage family. */
+#url-input:focus {
+  border-color: #7c8c69;
+}
+
+/* Generate button.
+   Background uses the sage green so the button matches the QR code. */
+#generate-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #7c8c69;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#generate-btn:hover {
+  background: #6b7a59;
+}
+
+/* Small red error line under the button.
+   Hidden until there's a message to show. */
+#error {
+  margin-top: 10px;
+  min-height: 18px;
+  font-size: 13px;
+  color: #c0392b;
+}
+
+/* Box that holds the generated QR image. */
+#qr-container {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Download link, hidden until a QR code exists. */
+#download-btn {
+  display: none;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #7c8c69;
+  text-decoration: none;
+}
+
+#download-btn:hover {
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+
+<!-- Main card -->
+<div class="card">
+  <h1>URL to QR Code</h1>
+
+  <!-- URL entry field.
+       Pre-filled with the school URL so you can test right away.
+       Clear it and type any URL to generate a different code. -->
+  <input id="url-input" type="text" placeholder="Paste or type a URL" autocomplete="off" value="www.flcc.edu">
+
+  <!-- Button that triggers QR generation -->
+  <button id="generate-btn">Generate QR Code</button>
+
+  <!-- Error message line -->
+  <div id="error"></div>
+
+  <!-- QR code renders here -->
+  <div id="qr-container"></div>
+
+  <!-- Download link for the generated image -->
+  <a id="download-btn" download="qr-code.png">Download PNG</a>
+</div>
+
+<script>
+// ===== Your two customization settings =====
+// Change these two lines to rebrand every QR code the app makes.
+
+// The QR color. This is the sage green.
+// Darker values scan more reliably. A very light sage may fail to scan, so test on a phone if you lighten it.
+const QR_COLOR = "#7c8c69";
+
+// The initials that sit in the middle of the code.
+// Change "GS" to any short set of letters.
+const INITIALS = "GS";
+// ===========================================
+
+// Grab the elements we need once, so we're not re-querying every click.
+const urlInput = document.getElementById("url-input");
+const generateBtn = document.getElementById("generate-btn");
+const errorEl = document.getElementById("error");
+const qrContainer = document.getElementById("qr-container");
+const downloadBtn = document.getElementById("download-btn");
+
+// Cleans up what the user typed.
+// If they leave off http:// or https://, we add https:// so the QR still works.
+function normalizeUrl(value) {
+  const trimmed = value.trim();
+
+  if (trimmed === "") {
+    return "";
+  }
+
+  if (!/^https?:\/\//i.test(trimmed)) {
+    return "https://" + trimmed;
+  }
+
+  return trimmed;
+}
+
+// Draws the initials in the middle of the finished QR code.
+// It paints a small white pad first so the letters sit on a clean background,
+// then writes the initials in the sage color on top.
+// The pad is kept small (about a quarter of the width) so the QR stays scannable.
+function drawInitials(canvas) {
+  const ctx = canvas.getContext("2d");
+  const size = canvas.width;
+
+  // Size and position of the white pad behind the letters.
+  // Increase padSize for bigger initials, decrease it if scanning gets unreliable.
+  const padSize = size * 0.26;
+  const padX = (size - padSize) / 2;
+  const padY = (size - padSize) / 2;
+  const radius = padSize * 0.18;
+
+  // Draw the rounded white pad.
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.moveTo(padX + radius, padY);
+  ctx.arcTo(padX + padSize, padY, padX + padSize, padY + padSize, radius);
+  ctx.arcTo(padX + padSize, padY + padSize, padX, padY + padSize, radius);
+  ctx.arcTo(padX, padY + padSize, padX, padY, radius);
+  ctx.arcTo(padX, padY, padX + padSize, padY, radius);
+  ctx.closePath();
+  ctx.fill();
+
+  // Draw the initials in sage green, centered in the pad.
+  ctx.fillStyle = QR_COLOR;
+  ctx.font = "bold " + (padSize * 0.5) + "px system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(INITIALS, size / 2, size / 2);
+}
+
+// Builds the QR code, adds the initials, and shows the download link.
+function generateQr() {
+  const url = normalizeUrl(urlInput.value);
+
+  // Nothing entered, show a message and stop.
+  if (url === "") {
+    errorEl.textContent = "Please enter a URL first.";
+    downloadBtn.style.display = "none";
+    qrContainer.innerHTML = "";
+    return;
+  }
+
+  // Clear any previous error and previous QR code.
+  errorEl.textContent = "";
+  qrContainer.innerHTML = "";
+
+  // Create the QR code inside the container.
+  // colorDark sets the module color to the sage green.
+  // correctLevel H is the highest error correction, which is what lets the
+  // initials sit in the middle without breaking the scan.
+  new QRCode(qrContainer, {
+    text: url,
+    width: 240,
+    height: 240,
+    colorDark: QR_COLOR,
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  // The library needs a moment to finish drawing before we add the initials.
+  setTimeout(function () {
+    const canvas = qrContainer.querySelector("canvas");
+    const img = qrContainer.querySelector("img");
+
+    if (canvas) {
+      // Paint the initials onto the finished code.
+      drawInitials(canvas);
+
+      // The library sometimes displays an <img> copy instead of the canvas,
+      // so point that image at our updated canvas so the initials show.
+      if (img) {
+        img.src = canvas.toDataURL("image/png");
+      }
+
+      // Point the download link at the finished image.
+      downloadBtn.href = canvas.toDataURL("image/png");
+      downloadBtn.style.display = "inline-block";
+    }
+  }, 50);
+}
+
+// Generate on button click.
+generateBtn.addEventListener("click", generateQr);
+
+// Also generate when the user hits Enter in the field.
+urlInput.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    generateQr();
+  }
+});
+</script>
+
+</body>
+</html>

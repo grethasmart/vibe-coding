@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Let's Get to Work</title>
+
+<!-- Two fonts, both from Google Fonts:
+     Space Grotesk for the big title up top (clean but with character),
+     Inter for the clock and buttons (even, professional, easy to read).
+     If you're ever offline they fall back to your system sans. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* Page background and centering.
+   Soft off-white so it reads like a calm, professional work tool. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: #f4f5f7;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Vertical stack that holds the free-floating header on top
+   and the boxed timer below it, centered together. */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 680px;
+}
+
+/* The header sits ABOVE the box, with no box of its own.
+   This is the "Let's Get to Work" plus the small status line. */
+.header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+/* The big title.
+   Space Grotesk gives it more personality than a plain sans.
+   clamp() means: never smaller than 40px, grow with the screen,
+   never larger than 60px. That keeps it big but safe on small windows. */
+h1 {
+  margin: 0 0 10px;
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(40px, 7vw, 60px);
+  font-weight: 700;
+  letter-spacing: -1px;
+  color: #1f2430;
+}
+
+/* The small status line under the title.
+   Changes to "Focus session", "Paused", or "Nice work" as you go. */
+.subtitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #9aa0ab;
+}
+
+/* The box. It now holds ONLY the clock and the three buttons.
+   Bigger padding and a wider max-width than before, for the larger scale. */
+.card {
+  background: #ffffff;
+  width: 100%;
+  padding: 56px 48px;
+  border-radius: 26px;
+  box-shadow: 0 22px 55px rgba(20, 28, 46, 0.12);
+  border: 1px solid #e6e8ec;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* The big clock.
+   Roughly double the old size. clamp() keeps it from overflowing
+   on a narrow window: min 110px, scales with width, max 170px.
+   tabular-nums keeps digits the same width so nothing shifts as it ticks. */
+.clock {
+  font-size: clamp(110px, 22vw, 170px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -4px;
+  color: #1f2430;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 44px;
+}
+
+/* The row of buttons. Bigger gap to match the larger buttons. */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Shared button shape.
+   Bigger text and padding than before so they're easy to hit.
+   Individual colors are set on the specific buttons below. */
+.controls button {
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px 36px;
+  border-radius: 13px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+/* A disabled button (for example Pause before you've started)
+   fades out so it's clear it isn't active right now. */
+.controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Start button. The one accent color on the page, a calm deep teal. */
+#start-btn {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+#start-btn:hover:enabled {
+  background: #0c5f58;
+}
+
+/* Pause button. Outlined rather than filled, so it's quieter than Start. */
+#pause-btn {
+  background: #ffffff;
+  color: #1f2430;
+  border-color: #d3d7de;
+}
+
+#pause-btn:hover:enabled {
+  background: #f4f5f7;
+}
+
+/* Reset button. Plain text style, the quietest of the three. */
+#reset-btn {
+  background: transparent;
+  color: #9aa0ab;
+}
+
+#reset-btn:hover:enabled {
+  color: #1f2430;
+}
+</style>
+</head>
+<body>
+
+<!-- Everything is stacked inside this wrapper. -->
+<div class="wrap">
+
+  <!-- Header, floating above the box with no border of its own. -->
+  <div class="header">
+
+    <!-- Title. Change this text to whatever you like. -->
+    <h1>Let's Get to Work</h1>
+
+    <!-- Status line, updated by the script. -->
+    <p class="subtitle" id="subtitle">Focus session</p>
+
+  </div>
+
+  <!-- The box. Just the clock and the controls live in here now. -->
+  <div class="card">
+
+    <!-- The big countdown clock. Filled in by the script. -->
+    <div class="clock" id="clock">25:00</div>
+
+    <!-- The three controls. -->
+    <div class="controls">
+      <button id="start-btn">Start</button>
+      <button id="pause-btn" disabled>Pause</button>
+      <button id="reset-btn">Reset</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// SESSION LENGTH lives here. This is the line you change to
+// make the timer longer or shorter. 25 is a classic Pomodoro.
+// For a 50-minute session, change 25 to 50.
+const SESSION_MINUTES = 25;
+// ============================================================
+
+// Grab the elements we use, once.
+const clockEl = document.getElementById("clock");
+const subtitleEl = document.getElementById("subtitle");
+const startBtn = document.getElementById("start-btn");
+const pauseBtn = document.getElementById("pause-btn");
+const resetBtn = document.getElementById("reset-btn");
+
+// How many seconds are left right now.
+let remainingSeconds = SESSION_MINUTES * 60;
+
+// The moment the current run should hit zero. Set when you press Start.
+// We count down against the real clock instead of just subtracting one
+// each tick, so the timer stays accurate even if you switch browser tabs.
+let endTime = null;
+
+// Holds the repeating timer so we can stop it on pause or reset.
+let ticker = null;
+
+// Turns a number of seconds into a "MM:SS" string and shows it.
+function render() {
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+
+  // padStart makes single digits show with a leading zero, like 05.
+  clockEl.textContent =
+    String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
+}
+
+// Plays a short soft beep when the session ends.
+// Built with the browser's audio tools so there's no sound file to host.
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+
+    // A gentle mid tone, not harsh.
+    oscillator.frequency.value = 660;
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+
+    // Fade the tone out over about half a second so it isn't jarring.
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+
+    oscillator.start();
+    oscillator.stop(ctx.currentTime + 0.5);
+  } catch (e) {
+    // If audio isn't available for any reason, just stay silent.
+  }
+}
+
+// Runs several times a second while the timer is going.
+// It recalculates how much time is left from the real clock.
+function tick() {
+  remainingSeconds = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+  render();
+
+  // Time's up.
+  if (remainingSeconds <= 0) {
+    clearInterval(ticker);
+    ticker = null;
+
+    subtitleEl.textContent = "Nice work";
+    playBeep();
+
+    // Reset the buttons so you can start a fresh session.
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+  }
+}
+
+// Start (or resume) the countdown.
+function start() {
+  // Ignore extra clicks while it's already running.
+  if (ticker !== null) {
+    return;
+  }
+
+  // Set the finish line based on however much time is left.
+  endTime = Date.now() + remainingSeconds * 1000;
+
+  subtitleEl.textContent = "Focus session";
+
+  // Update a few times a second so the display stays in step.
+  ticker = setInterval(tick, 250);
+
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
+}
+
+// Pause the countdown and keep the time left where it is.
+function pause() {
+  if (ticker === null) {
+    return;
+  }
+
+  clearInterval(ticker);
+  ticker = null;
+
+  // Lock in the remaining time so resuming picks up exactly here.
+  remainingSeconds = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+  render();
+
+  subtitleEl.textContent = "Paused";
+
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+}
+
+// Reset back to a full session.
+function reset() {
+  clearInterval(ticker);
+  ticker = null;
+
+  remainingSeconds = SESSION_MINUTES * 60;
+  render();
+
+  subtitleEl.textContent = "Focus session";
+
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+}
+
+// Wire the buttons to their actions.
+startBtn.addEventListener("click", start);
+pauseBtn.addEventListener("click", pause);
+resetBtn.addEventListener("click", reset);
+
+// Show the starting time as soon as the page loads.
+render();
+</script>
+
+</body>
+</html>
