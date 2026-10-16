@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gretha Smart | Vibe Coding</title>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent: #6d28d9;
+      --border: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 3.5rem 1.5rem;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+    }
+
+    /* Responsive Card Grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Individual Project Card */
+    .card {
+      position: relative;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--accent);
+      border-radius: 12px;
+      padding: 1.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -4px rgba(109, 40, 217, 0.12);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    /* Hyperlink Title */
+    .card h2 a {
+      color: var(--text-main);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    /* Makes the entire card clickable while keeping the title as the semantic link */
+    .card h2 a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    .card h2 a:hover,
+    .card:hover h2 a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 4rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Gretha Smart</h1>
+      <p>Web &amp; Mobile Development — Project Directory</p>
+    </header>
+
+    <main class="card-grid">
+      <!-- 1. Hello -->
+      <article class="card">
+        <h2><a href="https://grethasmart.github.io/vibe-coding/hello/">Hello</a></h2>
+        <p>First published web page and live repository setup check.</p>
+      </article>
+
+      <!-- 2. QR Code -->
+      <article class="card">
+        <h2><a href="https://grethasmart.github.io/vibe-coding/qr-code-v1/">QR Code</a></h2>
+        <p>Interactive tool for generating custom scannable QR codes.</p>
+      </article>
+
+      <!-- 3. Pomodoro -->
+      <article class="card">
+        <h2><a href="https://grethasmart.github.io/vibe-coding/Pomodoro%20-%20v1/">Pomodoro Timer</a></h2>
+        <p>Focus timer designed for structured work intervals and breaks.</p>
+      </article>
+
+      <!-- 4. Countdown -->
+      <article class="card">
+        <h2><a href="https://grethasmart.github.io/vibe-coding/countdown/">Countdown</a></h2>
+        <p>Real-time clock counting down to upcoming dates and milestones.</p>
+      </article>
+
+      <!-- 5. Recipe -->
+      <article class="card">
+        <h2><a href="https://grethasmart.github.io/vibe-coding/recipe/">Recipe Card</a></h2>
+        <p>Editorial recipe page featuring ingredients, instructions, and cooking notes.</p>
+      </article>
+
+      <!-- 6. Slider -->
+      <article class="card">
+        <h2><a href="https://grethasmart.github.io/vibe-coding/slider/">Slider</a></h2>
+        <p>Interactive Polaroid-style photo gallery with a synchronized slider.</p>
+      </article>
+
+      <!-- 7. My Page -->
+      <article class="card">
+        <h2><a href="https://grethasmart.github.io/vibe-coding/my-page/">My Page</a></h2>
+        <p>Digital scrapbook showcasing personal background, hobbies, and media work.</p>
+      </article>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 Gretha Smart</p>
+    </footer>
+  </div>
+
+</body>
+</html>
