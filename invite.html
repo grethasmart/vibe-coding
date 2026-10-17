@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're Invited!</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f4f8;
+            margin: 0;
+        }
+        .invitation-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .instruction {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="invitation-card">
+        <!-- This is where the JavaScript will insert the name -->
+        <h1 id="invite-message">Friend, you're invited!</h1>
+        <p>Please join us for a great time.</p>
+        
+        <div class="instruction">
+            <p><strong>To test this:</strong> Add <code>?to=YourName</code> to the end of the URL in your browser's address bar and hit Enter.</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. Get the query string from the URL (everything after the '?')
+        const queryString = window.location.search;
+        
+        // 2. Use URLSearchParams to easily parse the parameters
+        const urlParams = new URLSearchParams(queryString);
+        
+        // 3. Get the value of the 'to' parameter
+        const inviteeName = urlParams.get('to');
+        
+        // 4. Find the H1 element where we want to display the message
+        const messageElement = document.getElementById('invite-message');
+        
+        // 5. If a name was found in the URL, update the text!
+        if (inviteeName) {
+            messageElement.textContent = `${inviteeName}, you're invited!`;
+        }
+    </script>
+
+</body>
+</html>
