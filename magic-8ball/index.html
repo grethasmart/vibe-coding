@@ -1,0 +1,347 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magic 8-Ball</title>
+  <style>
+    :root {
+      --bg-dark: #0f0c1b;
+      --bg-glow: #261b47;
+      --triangle-blue: #1d4ed8;
+      --triangle-glow: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, var(--bg-glow) 0%, var(--bg-dark) 100%);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #ffffff;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 2rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      text-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+    }
+
+    p.subtitle {
+      color: #cbd5e1;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    /* Question Input Area */
+    .controls {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 35px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input[type="text"]::placeholder {
+      color: #94a3b8;
+    }
+
+    input[type="text"]:focus {
+      border-color: #a78bfa;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    button {
+      padding: 12px 22px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      color: white;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(109, 40, 217, 0.5);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(109, 40, 217, 0.7);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* The 3D 8-Ball Sphere */
+    .scene {
+      position: relative;
+      display: flex;
+       flex-direction: column;
+      align-items: center;
+    }
+
+    .eight-ball {
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      /* 3D specular highlight + deep black shading */
+      background: radial-gradient(circle at 30% 25%, #555 0%, #222 18%, #0a0a0a 58%, #000 100%);
+      box-shadow: 
+        inset -18px -18px 35px rgba(0, 0, 0, 0.9),
+        inset 10px 10px 25px rgba(255, 255, 255, 0.12),
+        0 28px 50px rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Floor shadow that reacts when the ball shakes */
+    .ball-shadow {
+      width: 240px;
+      height: 28px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0) 75%);
+      margin-top: -10px;
+      z-index: -1;
+    }
+
+    /* Inner Recessed Window */
+    .window {
+      width: 165px;
+      height: 165px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #061126 0%, #02050d 85%);
+      border: 7px solid #1c1c1c;
+      box-shadow: 
+        inset 0 0 25px #000000,
+        inset 0 0 12px rgba(29, 78, 216, 0.3),
+        0 2px 5px rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Classic White '8' Overlay (fades out after first shake) */
+    .eight-emblem {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff, #dcdcdc);
+      color: #0a0a0a;
+      font-size: 5.5rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      z-index: 3;
+    }
+
+    .eight-emblem.hidden {
+      opacity: 0;
+      transform: scale(0.75);
+      pointer-events: none;
+    }
+
+    /* Floating Blue Die Triangle */
+    .triangle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 130px;
+      height: 130px;
+      opacity: 0;
+      transform: scale(0.4) rotate(-25deg);
+      filter: blur(6px);
+      transition: opacity 0.7s ease-out, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease-out;
+    }
+
+    .triangle-wrapper.visible {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+      filter: blur(0px);
+    }
+
+    /* CSS Inverted Equilateral Triangle */
+    .triangle {
+      width: 0;
+      height: 0;
+      border-left: 62px solid transparent;
+      border-right: 62px solid transparent;
+      border-top: 108px solid var(--triangle-blue);
+      filter: drop-shadow(0 0 10px var(--triangle-glow));
+      position: absolute;
+      top: 14px;
+    }
+
+    /* Answer Text Inside the Triangle */
+    .answer-text {
+      position: relative;
+      z-index: 2;
+      width: 82px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      line-height: 1.2;
+      color: #e0f2fe;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      margin-top: -18px; /* Centers text in the wider upper half of the inverted triangle */
+      pointer-events: none;
+    }
+
+    /* Shake Keyframe Animation */
+    @keyframes shakeBall {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      12% { transform: translate(-18px, -12px) rotate(-8deg); }
+      24% { transform: translate(16px, 10px) rotate(8deg); }
+      36% { transform: translate(-16px, 8px) rotate(-6deg); }
+      48% { transform: translate(14px, -10px) rotate(6deg); }
+      60% { transform: translate(-12px, -6px) rotate(-4deg); }
+      72% { transform: translate(10px, 6px) rotate(4deg); }
+      85% { transform: translate(-5px, -3px) rotate(-2deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    .shaking {
+      animation: shakeBall 0.75s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    .hint {
+      margin-top: 18px;
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Magic 8-Ball</h1>
+  <p class="subtitle">Ask a question, then click the ball or button to shake.</p>
+
+  <div class="controls">
+    <input type="text" id="questionInput" placeholder="Ask the 8-Ball anything..." autocomplete="off">
+    <button id="shakeBtn">Shake It</button>
+  </div>
+
+  <div class="scene">
+    <div class="eight-ball" id="eightBall" title="Click to shake!">
+      <div class="window">
+        <!-- Classic '8' shown before the first shake -->
+        <div class="eight-emblem" id="eightEmblem">8</div>
+
+        <!-- Floating Blue Answer Triangle -->
+        <div class="triangle-wrapper" id="triangleWrapper">
+          <div class="triangle"></div>
+          <div class="answer-text" id="answerText"></div>
+        </div>
+      </div>
+    </div>
+    <div class="ball-shadow"></div>
+  </div>
+
+  <p class="hint">Tip: Press <strong>Enter</strong> after typing your question, or click the sphere directly.</p>
+
+  <script>
+    const answers = [
+      // Hype / Definite Yes
+      "Absolutely",
+      "100% locked in",
+      "The stars say yes",
+      "Without a doubt",
+      "Say less, it's happening",
+      "Green light all the way",
+
+      // Sassy / Definite No
+      "Not a chance",
+      "In your dreams",
+      "Hard pass",
+      "Don't bet on it",
+      "The universe says nah",
+      "Abort mission immediately",
+
+      // Playful / Try Again
+      "Try again",
+      "Vibes are cloudy, shake again",
+      "Ask me after coffee",
+      "Too chaotic to call right now",
+      "You already know the answer",
+      "Sleep on it first"
+    ];
+
+    const eightBall = document.getElementById('eightBall');
+    const shakeBtn = document.getElementById('shakeBtn');
+    const questionInput = document.getElementById('questionInput');
+    const eightEmblem = document.getElementById('eightEmblem');
+    const triangleWrapper = document.getElementById('triangleWrapper');
+    const answerText = document.getElementById('answerText');
+
+    let isShaking = false;
+
+    function shakeMagicBall() {
+      if (isShaking) return;
+      isShaking = true;
+
+      // Hide the initial "8" emblem and submerge the triangle into the dark liquid
+      eightEmblem.classList.add('hidden');
+      triangleWrapper.classList.remove('visible');
+
+      // Trigger the shake animation
+      eightBall.classList.remove('shaking');
+      void eightBall.offsetWidth; // Force reflow so animation restarts cleanly
+      eightBall.classList.add('shaking');
+
+      // Wait for the shake to finish, then float the new answer up
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * answers.length);
+        answerText.textContent = answers[randomIndex];
+
+        eightBall.classList.remove('shaking');
+        triangleWrapper.classList.add('visible');
+        isShaking = false;
+      }, 750);
+    }
+
+    shakeBtn.addEventListener('click', shakeMagicBall);
+    eightBall.addEventListener('click', shakeMagicBall);
+
+    questionInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        shakeMagicBall();
+      }
+    });
+  </script>
+</body>
+</html>
