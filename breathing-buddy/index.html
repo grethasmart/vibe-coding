@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breathing Buddy — Ethereal Calm</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Cormorant Garamond for dynamic ethereal title & Plus Jakarta Sans for clean UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Plus+Jakarta+Sans:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-deep: #040914;
+      --bg-mid: #0a182e;
+      --calm-cyan: #67e8f9;
+      --calm-cerulean: #38bdf8;
+      --calm-velvet: #9fcae5;
+      --calm-ice: #e0f2fe;
+      --phase-accent: #7dd3fc;
+      --phase-glow: rgba(56, 189, 248, 0.75);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      /* Generous vertical scroll allowance to prevent cramping */
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: radial-gradient(circle at 50% 30%, #0f294d 0%, #071329 55%, #030710 100%);
+      color: var(--calm-ice);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Container to hold everything with generous spacing */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 3rem 1.25rem 4rem 1.25rem;
+      gap: 2.5rem;
+      min-height: 100vh;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* 
+      Dynamic, expressive title font 
+      FIXED: padding-bottom and line-height prevent italic descenders (like 'g') from clipping 
+    */
+    .title-dynamic {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ffffff 0%, #bae6fd 45%, #67e8f9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 20px rgba(56, 189, 248, 0.35));
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+      padding-bottom: 0.2em;
+      padding-right: 0.1em;
+      display: inline-block;
+    }
+
+    /* Subtle ambient background aurora */
+    .ambient-aurora {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(103, 232, 249, 0.07) 0%, transparent 50%);
+      animation: auroraDrift 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes auroraDrift {
+      0% { transform: scale(1) translate(0px, 0px); opacity: 0.7; }
+      100% { transform: scale(1.15) translate(15px, -15px); opacity: 1; }
+    }
+
+    /* Glassmorphic Music Player Card */
+    .music-player-glass {
+      background: linear-gradient(145deg, rgba(16, 37, 68, 0.75) 0%, rgba(10, 24, 46, 0.65) 100%);
+      border: 1px solid rgba(125, 211, 252, 0.3);
+      box-shadow:
+        0 12px 32px -8px rgba(3, 7, 16, 0.65),
+        0 0 24px -4px rgba(56, 189, 248, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 1rem;
+      width: 100%;
+    }
+
+    /* Custom Range Volume Slider */
+    input[type="range"].calm-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 5px;
+      background: rgba(125, 211, 252, 0.25);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"].calm-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #e0f2fe;
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 10px rgba(103, 232, 249, 0.85);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    input[type="range"].calm-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: #ffffff;
+    }
+
+    /* Animated sound wave bars */
+    .eq-bar {
+      width: 2.5px;
+      background: #7dd3fc;
+      border-radius: 999px;
+      height: 4px;
+      transition: height 0.2s ease;
+    }
+    .playing .eq-bar-1 { animation: eqBounce 0.9s ease-in-out infinite alternate; }
+    .playing .eq-bar-2 { animation: eqBounce 0.65s ease-in-out 0.2s infinite alternate; }
+    .playing .eq-bar-3 { animation: eqBounce 0.8s ease-in-out 0.4s infinite alternate; }
+
+    @keyframes eqBounce {
+      0% { height: 4px; opacity: 0.55; }
+      100% { height: 14px; opacity: 1; }
+    }
+
+    /* Ring Container */
+    .visualizer-stage {
+      position: relative;
+      width: min(80vw, 380px);
+      height: min(80vw, 380px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      margin: 1rem 0;
+    }
+
+    /* Nebulous CSS Rings */
+    .nebula-ring-layer {
+      position: absolute;
+      border-radius: 9999px;
+      pointer-events: none;
+      will-change: width, height, opacity;
+      transition: border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+    .nebula-mist {
+      border: 16px solid rgba(56, 189, 248, 0.15);
+      box-shadow: 0 0 45px 12px rgba(56, 189, 248, 0.25), inset 0 0 40px 10px rgba(103, 232, 249, 0.2);
+      filter: blur(12px);
+    }
+    .nebula-filament {
+      border: 1.5px solid rgba(224, 242, 254, 0.65);
+      box-shadow: 0 0 20px 3px rgba(103, 232, 249, 0.7), inset 0 0 20px 3px rgba(56, 189, 248, 0.6);
+      filter: blur(0.8px);
+    }
+    #etherealCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    /* Center Typography */
+    .center-readout {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+    }
+    .phase-word {
+      font-size: clamp(1.25rem, 4vw, 1.75rem);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--phase-accent);
+      text-shadow: 0 0 16px var(--phase-glow), 0 2px 10px rgba(0, 0, 0, 0.8);
+      transition: color 0.4s ease, text-shadow 0.4s ease;
+      min-height: 2.2rem;
+    }
+    .countdown-number {
+      font-size: clamp(3.5rem, 9vw, 4.5rem);
+      font-weight: 300;
+      line-height: 1.0;
+      color: #ffffff;
+      text-shadow: 0 0 24px var(--phase-glow), 0 0 45px rgba(56, 189, 248, 0.5), 0 2px 8px rgba(0, 0, 0, 0.8);
+      margin-top: 0.2rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .phase-subtext {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #bae6fd;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+      margin-top: 0.5rem;
+    }
+
+    /* Phase Pills (Breathe In · Hold · Breathe Out · Hold) */
+    .phase-step-pill {
+      background: rgba(15, 32, 58, 0.75);
+      border: 1px solid rgba(125, 211, 252, 0.25);
+      color: rgba(186, 230, 253, 0.7);
+      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      backdrop-filter: blur(8px);
+    }
+    
+    /* Popping Active States */
+    .phase-step-pill.active-0 {
+      color: #040914;
+      background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
+      border-color: #e0f2fe;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.6);
+      transform: translateY(-3px) scale(1.06);
+      font-weight: 700;
+    }
+    .phase-step-pill.active-1 {
+      color: #040914;
+      background: linear-gradient(135deg, #5eead4 0%, #2dd4bf 100%);
+      border-color: #ccfbf1;
+      box-shadow: 0 0 24px rgba(45, 212, 191, 0.6);
+      transform: translateY(-3px) scale(1.06);
+      font-weight: 700;
+    }
+    .phase-step-pill.active-2 {
+      color: #040914;
+      background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+      border-color: #dbeafe;
+      box-shadow: 0 0 24px rgba(96, 165, 250, 0.6);
+      transform: translateY(-3px) scale(1.06);
+      font-weight: 700;
+    }
+    .phase-step-pill.active-3 {
+      color: #040914;
+      background: linear-gradient(135deg, #a5f3fc 0%, #67e8f9 100%);
+      border-color: #cffafe;
+      box-shadow: 0 0 24px rgba(103, 232, 249, 0.6);
+      transform: translateY(-3px) scale(1.06);
+      font-weight: 700;
+    }
+
+    /* Start / Stop Buttons - highly visible */
+    .btn-calm-primary {
+      background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+      border: 1px solid #bae6fd;
+      color: #ffffff;
+      font-weight: 700;
+      box-shadow: 0 8px 24px -4px rgba(14, 165, 233, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-calm-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
+      box-shadow: 0 12px 32px -4px rgba(56, 189, 248, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+    }
+    .btn-calm-primary:active:not(:disabled) {
+      transform: translateY(0px) scale(0.98);
+    }
+
+    .btn-calm-stop {
+      background: rgba(14, 165, 233, 0.15);
+      border: 2px solid #38bdf8;
+      color: #e0f2fe;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .btn-calm-stop:hover:not(:disabled) {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #7dd3fc;
+      color: #ffffff;
+      box-shadow: 0 8px 24px -4px rgba(56, 189, 248, 0.4);
+      transform: translateY(-2px);
+    }
+    .btn-calm-stop:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      border-color: rgba(125, 211, 252, 0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Shifting ambient background -->
+  <div class="ambient-aurora"></div>
+
+  <!-- Main Application Wrapper -->
+  <div class="app-container relative z-10 w-full text-center">
+    
+    <!-- Top Header section -->
+    <header class="w-full flex flex-col items-center gap-4">
+      <h1 class="title-dynamic text-5xl sm:text-6xl tracking-wide">
+        Breathing Buddy
+      </h1>
+
+      <!-- Music Player -->
+      <div class="music-player-glass px-5 py-4 mt-2">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <!-- Controls -->
+          <div class="flex items-center gap-3">
+            <button id="prevTrackBtn" type="button" class="p-2 rounded-full text-sky-200 hover:text-white hover:bg-sky-400/20 transition">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+            <button id="playMusicBtn" type="button" class="w-12 h-12 rounded-full bg-sky-300 text-slate-950 hover:bg-white flex items-center justify-center shadow-lg shadow-sky-400/30 transition transform active:scale-95">
+              <svg id="playMusicIcon" class="w-5 h-5 fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+              <svg id="pauseMusicIcon" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+            <button id="nextTrackBtn" type="button" class="p-2 rounded-full text-sky-200 hover:text-white hover:bg-sky-400/20 transition">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+            </button>
+          </div>
+
+          <!-- Info & EQ -->
+          <div class="flex-1 min-w-[160px] text-center sm:text-left px-2">
+            <div class="flex items-center justify-center sm:justify-start gap-3 mb-1">
+              <div id="eqVisualizer" class="flex items-end gap-[3px] h-4">
+                <span class="eq-bar eq-bar-1"></span>
+                <span class="eq-bar eq-bar-2"></span>
+                <span class="eq-bar eq-bar-3"></span>
+              </div>
+              <span id="trackTitle" class="text-sm font-semibold text-sky-50 truncate">
+                Oceanic Drift (432 Hz)
+              </span>
+            </div>
+            <div class="text-xs text-sky-300/80 truncate">Built-in ambient synthesis</div>
+          </div>
+
+          <!-- Volume -->
+          <div class="flex items-center justify-center gap-3 w-full sm:w-32">
+            <svg class="w-4 h-4 text-sky-300 shrink-0 fill-current" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+            <input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.65" class="calm-slider" />
+          </div>
+        </div>
+
+        <!-- Spotify Toggle & Embed -->
+        <div class="mt-4 pt-3 border-t border-sky-300/20 flex flex-col items-center">
+          <button id="toggleSpotifyBtn" class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/40 shadow-sm transition-all flex items-center gap-2">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+            Toggle Spotify Player
+          </button>
+          
+          <div id="spotifyContainer" class="hidden w-full mt-4 transition-all">
+            <iframe src="https://open.spotify.com/embed/playlist/1yNQEV47mOcnRvzyp3PFi7?utm_source=generator&si=c053a8313256478d" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:12px"></iframe>
+          </div>
+        </div>
+      </div>
+      
+      <p class="text-[0.8rem] text-white/70 font-light w-full text-justify tracking-widest leading-relaxed mt-2" style="text-align-last: center;">
+        Play some music if you'd like to help calm your spirit. You can play the music before or during the exercise. Here are some suggested songs, but you're welcome to play your own.
+      </p>
+    </header>
+
+    <!-- Center Ring Animation -->
+    <main class="flex flex-col items-center w-full">
+      <div class="visualizer-stage" id="visualizerStage">
+        <!-- CSS Glow Layers -->
+        <div id="nebulaMist" class="nebula-ring-layer nebula-mist"></div>
+        <div id="nebulaFilament" class="nebula-ring-layer nebula-filament"></div>
+        <!-- Stardust Canvas -->
+        <canvas id="etherealCanvas"></canvas>
+        <!-- Center Text -->
+        <div class="center-readout" aria-live="polite">
+          <div id="phaseWord" class="phase-word">Ready</div>
+          <div id="countdownNumber" class="countdown-number">4</div>
+          <div id="phaseSubtext" class="phase-subtext">Press Start</div>
+        </div>
+      </div>
+
+      <!-- Step Indicators (Pills) -->
+      <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-6 w-full max-w-lg">
+        <div id="pill-0" class="phase-step-pill px-5 py-2 rounded-full text-xs sm:text-sm tracking-wider uppercase">Breathe In</div>
+        <div id="pill-1" class="phase-step-pill px-5 py-2 rounded-full text-xs sm:text-sm tracking-wider uppercase">Hold</div>
+        <div id="pill-2" class="phase-step-pill px-5 py-2 rounded-full text-xs sm:text-sm tracking-wider uppercase">Breathe Out</div>
+        <div id="pill-3" class="phase-step-pill px-5 py-2 rounded-full text-xs sm:text-sm tracking-wider uppercase">Hold</div>
+      </div>
+    </main>
+
+    <!-- Start / Stop Controls -->
+    <footer class="flex items-center justify-center gap-5 w-full mt-2">
+      <button id="startBtn" class="btn-calm-primary px-10 py-4 rounded-full text-sm sm:text-base tracking-widest uppercase flex items-center gap-3 min-w-[160px] justify-center">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M8 5.14v14l11-7-11-7z" /></svg>
+        <span>Start</span>
+      </button>
+
+      <button id="stopBtn" disabled class="btn-calm-stop px-10 py-4 rounded-full text-sm sm:text-base tracking-widest uppercase flex items-center gap-3 min-w-[160px] justify-center">
+        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+        <span>Stop</span>
+      </button>
+    </footer>
+  </div>
+
+  <script>
+    /****************************************
+     * MUSIC PLAYER (Web Audio Synth & Spotify)
+     ****************************************/
+    const TRACKS = [
+      { title: 'Oceanic Drift (432 Hz)', freqs: [144.0, 216.0, 288.0, 360.0] },
+      { title: 'Velvet Sky Nocturne', freqs: [130.81, 196.0, 246.94, 293.66] },
+      { title: 'Tranquil Sanctuary', freqs: [174.61, 220.0, 261.63, 329.63] }
+    ];
+
+    let audioCtx = null;
+    let masterGain = null;
+    let oscillators = [];
+    let isPlaying = false;
+    let trackIdx = 0;
+
+    const btnPlay = document.getElementById('playMusicBtn');
+    const iconPlay = document.getElementById('playMusicIcon');
+    const iconPause = document.getElementById('pauseMusicIcon');
+    const eqVis = document.getElementById('eqVisualizer');
+    const titleEl = document.getElementById('trackTitle');
+    const volSlider = document.getElementById('volumeSlider');
+    const btnSpotify = document.getElementById('toggleSpotifyBtn');
+    const spotContainer = document.getElementById('spotifyContainer');
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = volSlider.value;
+        masterGain.connect(audioCtx.destination);
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function stopMusic() {
+      oscillators.forEach(o => {
+        if(o.gain) o.gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
+        setTimeout(() => { try{ o.osc.stop(); o.osc.disconnect(); }catch(e){} }, 300);
+      });
+      oscillators = [];
+    }
+
+    function playMusic(idx) {
+      initAudio();
+      stopMusic();
+      const t = TRACKS[idx];
+      titleEl.textContent = t.title;
+      
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass'; filter.frequency.value = 600;
+      filter.connect(masterGain);
+
+      t.freqs.forEach((f, i) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = i%2===0 ? 'sine' : 'triangle';
+        osc.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        g.gain.setTargetAtTime(0.1, audioCtx.currentTime, 1);
+        osc.connect(g); g.connect(filter); osc.start();
+        oscillators.push({osc, gain: g});
+      });
+    }
+
+    function toggleMusic() {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        iconPlay.classList.add('hidden'); iconPause.classList.remove('hidden');
+        eqVis.classList.add('playing');
+        playMusic(trackIdx);
+      } else {
+        iconPlay.classList.remove('hidden'); iconPause.classList.add('hidden');
+        eqVis.classList.remove('playing');
+        stopMusic();
+      }
+    }
+
+    btnPlay.addEventListener('click', toggleMusic);
+    document.getElementById('nextTrackBtn').addEventListener('click', () => {
+      trackIdx = (trackIdx + 1) % TRACKS.length;
+      if(isPlaying) playMusic(trackIdx); else titleEl.textContent = TRACKS[trackIdx].title;
+    });
+    document.getElementById('prevTrackBtn').addEventListener('click', () => {
+      trackIdx = (trackIdx - 1 + TRACKS.length) % TRACKS.length;
+      if(isPlaying) playMusic(trackIdx); else titleEl.textContent = TRACKS[trackIdx].title;
+    });
+    volSlider.addEventListener('input', e => {
+      if(masterGain) masterGain.gain.setTargetAtTime(e.target.value, audioCtx.currentTime, 0.1);
+    });
+
+    btnSpotify.addEventListener('click', () => {
+      spotContainer.classList.toggle('hidden');
+    });
+
+
+    /****************************************
+     * BREATHING LOGIC & ANIMATION
+     ****************************************/
+    const PHASES = [
+      { id: 0, text: 'Breathe In', sub: 'Inhale gently', s0: 0.0, s1: 1.0, color: '#7dd3fc', border: 'rgba(125,211,252,0.8)' },
+      { id: 1, text: 'Hold', sub: 'Be still', s0: 1.0, s1: 1.0, color: '#5eead4', border: 'rgba(94,234,212,0.8)' },
+      { id: 2, text: 'Breathe Out', sub: 'Exhale slowly', s0: 1.0, s1: 0.0, color: '#93c5fd', border: 'rgba(147,197,253,0.8)' },
+      { id: 3, text: 'Hold', sub: 'Rest peacefully', s0: 0.0, s1: 0.0, color: '#a5f3fc', border: 'rgba(165,243,252,0.8)' }
+    ];
+    
+    let isBreathing = false;
+    let pIdx = 0;
+    let pStartTime = 0;
+    let bScale = 0.15;
+    const DUR = 4000;
+
+    const btnStart = document.getElementById('startBtn');
+    const btnStop = document.getElementById('stopBtn');
+    const elWord = document.getElementById('phaseWord');
+    const elNum = document.getElementById('countdownNumber');
+    const elSub = document.getElementById('phaseSubtext');
+    const pills = [document.getElementById('pill-0'), document.getElementById('pill-1'), document.getElementById('pill-2'), document.getElementById('pill-3')];
+    
+    const cvs = document.getElementById('etherealCanvas');
+    const ctx = cvs.getContext('2d');
+    const nbMist = document.getElementById('nebulaMist');
+    const nbFil = document.getElementById('nebulaFilament');
+
+    function updatePills(idx) {
+      pills.forEach((p, i) => {
+        p.classList.remove('active-0','active-1','active-2','active-3');
+        if(i === idx) p.classList.add(`active-${idx}`);
+      });
+    }
+
+    btnStart.addEventListener('click', () => {
+      if(isBreathing) return;
+      isBreathing = true; pIdx = 0; pStartTime = performance.now(); bScale = 0.0;
+      btnStart.disabled = true; btnStart.classList.add('opacity-50');
+      btnStop.disabled = false;
+      updatePills(0);
+    });
+
+    btnStop.addEventListener('click', () => {
+      isBreathing = false;
+      btnStart.disabled = false; btnStart.classList.remove('opacity-50');
+      btnStop.disabled = true;
+      elWord.textContent = 'Ready'; elNum.textContent = '4'; elSub.textContent = 'Press Start';
+      updatePills(-1);
+      document.documentElement.style.setProperty('--phase-accent', '#7dd3fc');
+      document.documentElement.style.setProperty('--phase-glow', 'rgba(56,189,248,0.75)');
+      nbFil.style.borderColor = 'rgba(224,242,254,0.6)';
+    });
+
+    // Particle Setup
+    let sSize = 400, dpr = window.devicePixelRatio || 1;
+    const dust = Array.from({length: 250}, () => ({
+      ang: Math.random()*Math.PI*2,
+      spd: (Math.random()-0.5)*0.003,
+      rad: (Math.random()-0.5)*0.15,
+      sz: Math.random()*2+0.5
+    }));
+
+    function resize() {
+      const r = document.getElementById('visualizerStage').getBoundingClientRect();
+      sSize = Math.min(r.width, r.height);
+      cvs.width = sSize * dpr; cvs.height = sSize * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resize); resize();
+
+    function loop(now) {
+      const ts = now * 0.001;
+
+      if (isBreathing) {
+        const elap = Math.min(DUR, Math.max(0, now - pStartTime));
+        if (elap >= DUR) {
+          pIdx = (pIdx + 1) % 4; pStartTime = now;
+          updatePills(pIdx);
+          document.documentElement.style.setProperty('--phase-accent', PHASES[pIdx].color);
+          document.documentElement.style.setProperty('--phase-glow', PHASES[pIdx].border);
+          nbFil.style.borderColor = PHASES[pIdx].border;
+        }
+        
+        const ph = PHASES[pIdx];
+        const prog = elap / DUR;
+        // Ease in out sine
+        const ease = -(Math.cos(Math.PI * prog) - 1) / 2;
+        bScale = ph.s0 + (ph.s1 - ph.s0) * ease;
+
+        const remain = Math.max(1, Math.ceil((DUR - elap) / 1000));
+        elNum.textContent = remain;
+        if(elWord.textContent !== ph.text) { elWord.textContent = ph.text; elSub.textContent = ph.sub; }
+      } else {
+        bScale += (0.15 + Math.sin(ts*1.5)*0.02 - bScale) * 0.05;
+      }
+
+      const rMin = sSize * 0.25;
+      const rMax = sSize * 0.42;
+      const rRing = rMin + (rMax - rMin) * bScale;
+
+      nbMist.style.width = nbMist.style.height = nbFil.style.width = nbFil.style.height = `${rRing*2}px`;
+      nbMist.style.opacity = 0.5 + bScale*0.4;
+      nbFil.style.opacity = 0.4 + bScale*0.6;
+
+      ctx.clearRect(0,0,sSize,sSize);
+      ctx.globalCompositeOperation = 'lighter';
+      const cx = sSize/2, cy = sSize/2;
+
+      ctx.fillStyle = `rgba(103, 232, 249, 0.8)`;
+      dust.forEach(p => {
+        p.ang += p.spd;
+        const dist = rRing * (1 + p.rad) + Math.sin(ts*2+p.ang)*2;
+        ctx.beginPath();
+        ctx.arc(cx + Math.cos(p.ang)*dist, cy + Math.sin(p.ang)*dist, p.sz, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
