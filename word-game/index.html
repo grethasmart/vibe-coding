@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADA Compliant Wordle</title>
+  <style>
+    :root {
+      /* High-Contrast Daylight Theme (WCAG AAA Text Contrast) */
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #334155;
+      --border: #475569;
+      --border-strong: #0f172a;
+
+      --key-bg: #e2e8f0;
+      --key-text: #0f172a;
+      --key-hover: #cbd5e1;
+
+      /* High-contrast state colors (all >= 5.5:1 with #ffffff text) */
+      --correct: #116329;
+      --correct-border: #0a3d19;
+
+      --present: #9a5b00;
+      --present-border: #5c3600;
+
+      --absent: #334155;
+      --absent-border: #0f172a;
+
+      --focus-ring: #005fcc;
+      --focus-halo: rgba(0, 95, 204, 0.25);
+    }
+
+    body.dark-contrast {
+      --bg: #0b0f19;
+      --surface: #161e2e;
+      --text: #ffffff;
+      --text-muted: #e2e8f0;
+      --border: #94a3b8;
+      --border-strong: #ffffff;
+
+      --key-bg: #263248;
+      --key-text: #ffffff;
+      --key-hover: #364663;
+
+      --correct: #15803d;
+      --correct-border: #86efac;
+
+      --present: #b45309;
+      --present-border: #fde047;
+
+      --absent: #475569;
+      --absent-border: #cbd5e1;
+
+      --focus-ring: #38bdf8;
+      --focus-halo: rgba(56, 189, 248, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px 16px 32px;
+      line-height: 1.5;
+    }
+
+    /* Skip link for keyboard-only users */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 8px;
+      background: var(--focus-ring);
+      color: #ffffff;
+      padding: 12px 18px;
+      font-weight: 700;
+      border-radius: 6px;
+      text-decoration: none;
+      z-index: 100;
+    }
+
+    .skip-link:focus {
+      left: 16px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.12s ease, transform 0.08s ease;
+    }
+
+    button:focus-visible {
+      outline: 4px solid var(--focus-ring);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 6px var(--focus-halo);
+    }
+
+    .btn-control {
+      background-color: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--border-strong);
+      padding: 10px 16px;
+      min-height: 48px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .btn-control:hover {
+      background-color: var(--key-hover);
+    }
+
+    .btn-control[aria-pressed="true"] {
+      background-color: var(--correct);
+      color: #ffffff;
+      border-color: var(--correct-border);
+    }
+
+    /* High-contrast legend */
+    .legend {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      background: var(--surface);
+      padding: 10px 14px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 5px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      color: #ffffff;
+    }
+
+    .badge.correct {
+      background: var(--correct);
+      border: 2px solid var(--correct-border);
+    }
+
+    .badge.present {
+      background: var(--present);
+      border: 2px dashed var(--present-border);
+    }
+
+    .badge.absent {
+      background: var(--absent);
+      border: 2px dotted var(--absent-border);
+    }
+
+    /* Live Announcement Banner */
+    .announcer-box {
+      width: 100%;
+      max-width: 640px;
+      min-height: 56px;
+      background-color: var(--surface);
+      color: var(--text);
+      border: 2px solid var(--border-strong);
+      border-left: 8px solid var(--focus-ring);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 640px;
+      gap: 22px;
+    }
+
+    /* Oversized High-Contrast 6x5 Board */
+    .board {
+      display: grid;
+      grid-template-rows: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .tile {
+      position: relative;
+      width: 72px;
+      height: 72px;
+      background-color: var(--surface);
+      color: var(--text);
+      border: 3px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.25rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    .tile.filled {
+      border-color: var(--border-strong);
+      border-width: 3px;
+    }
+
+    .tile .status-icon {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    /* Revealed tiles always use bold white text on high-contrast fills */
+    .tile.correct,
+    .tile.present,
+    .tile.absent {
+      color: #ffffff;
+    }
+
+    .tile.correct {
+      background-color: var(--correct);
+      border: 4px solid var(--correct-border);
+    }
+
+    .tile.present {
+      background-color: var(--present);
+      border: 4px dashed var(--present-border);
+    }
+
+    .tile.absent {
+      background-color: var(--absent);
+      border: 4px dotted var(--absent-border);
+    }
+
+    /* Large High-Contrast Keyboard */
+    .keyboard {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .key {
+      flex: 1;
+      max-width: 58px;
+      height: 66px;
+      background-color: var(--key-bg);
+      color: var(--key-text);
+      border: 2px solid var(--border);
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 4px;
+    }
+
+    .key:hover {
+      background-color: var(--key-hover);
+      border-color: var(--border-strong);
+    }
+
+    .key:active {
+      transform: scale(0.96);
+    }
+
+    .key.wide {
+      flex: 1.65;
+      max-width: 98px;
+      font-size: 1rem;
+    }
+
+    .key-sub {
+      font-size: 0.78rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    /* High-contrast revealed keys — zero low-opacity fading */
+    .key.correct,
+    .key.present,
+    .key.absent {
+      color: #ffffff;
+    }
+
+    .key.correct {
+      background-color: var(--correct);
+      border: 3px solid var(--correct-border);
+    }
+
+    .key.present {
+      background-color: var(--present);
+      border: 3px dashed var(--present-border);
+    }
+
+    .key.absent {
+      background-color: var(--absent);
+      border: 3px dotted var(--absent-border);
+    }
+
+    .key.absent .key-letter {
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+    }
+
+    @media (max-width: 460px) {
+      .tile {
+        width: 58px;
+        height: 58px;
+        font-size: 1.85rem;
+      }
+      .key {
+        height: 58px;
+        font-size: 1.05rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#keyboard" class="skip-link">Skip to on-screen keyboard</a>
+
+  <header>
+    <h1>Wordle</h1>
+    <div class="controls">
+      <button type="button" id="voice-toggle" class="btn-control" aria-pressed="true">
+        Voice Readout: On
+      </button>
+      <button type="button" id="theme-toggle" class="btn-control" aria-pressed="false">
+        Dark Contrast: Off
+      </button>
+      <button type="button" id="new-game-btn" class="btn-control">
+        New Game
+      </button>
+    </div>
+  </header>
+
+  <div class="legend" role="region" aria-label="Tile status legend">
+    <span class="legend-item"><span class="badge correct" aria-hidden="true">✓</span> Right spot</span>
+    <span class="legend-item"><span class="badge present" aria-hidden="true">↔</span> Wrong spot</span>
+    <span class="legend-item"><span class="badge absent" aria-hidden="true">×</span> Not in word</span>
+  </div>
+
+  <!-- Live region: announces letters, errors, and guess results in plain words -->
+  <div id="live-announcer" class="announcer-box" role="status" aria-live="polite" aria-atomic="true">
+    Game ready. Type a 5-letter word using your physical keyboard or the on-screen buttons.
+  </div>
+
+  <main>
+    <section id="board" class="board" aria-label="Wordle game board, 6 rows of 5 letters"></section>
+    <section id="keyboard" class="keyboard" aria-label="On-screen letter keyboard"></section>
+  </main>
+
+  <script>
+    const WORDS = [
+      "PLANT", "CRANE", "SLATE", "AUDIO", "STARE", "LIGHT", "BRAIN", "HOUSE",
+      "TRAIN", "SHARE", "WATER", "FLAME", "STONE", "CLOUD", "SOUND", "GRACE",
+      "PRIDE", "DREAM", "SMILE", "BEACH", "GHOST", "SWEET", "HEART", "WORLD",
+      "MUSIC", "TIGER", "ZEBRA", "LEMON", "GRAPE", "PEACH", "MANGO", "BERRY",
+      "OCEAN", "RIVER", "MOUNT", "EARTH", "SPACE", "STARS", "SOLAR", "LUNAR",
+      "BRAVE", "SMART", "QUICK", "SHARP", "CLEAR", "FRESH", "CLEAN", "GREEN",
+      "BLACK", "WHITE", "BROWN", "ROYAL", "NOBLE", "CROWN", "SWORD", "SHIELD"
+    ];
+
+    const KEYBOARD_ROWS = [
+      ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+      ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+      ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "BACKSPACE"]
+    ];
+
+    const STATUS_META = {
+      correct: { symbol: "✓", label: "correct spot" },
+      present: { symbol: "↔", label: "wrong spot" },
+      absent:  { symbol: "×", label: "not in word" }
+    };
+
+    let secretWord = "";
+    let currentRow = 0;
+    let currentCol = 0;
+    let grid = [];
+    let gameOver = false;
+    let keyStatuses = {};
+    let voiceEnabled = true;
+
+    const boardEl = document.getElementById("board");
+    const keyboardEl = document.getElementById("keyboard");
+    const announcerEl = document.getElementById("live-announcer");
+    const voiceToggleBtn = document.getElementById("voice-toggle");
+    const themeToggleBtn = document.getElementById("theme-toggle");
+    const newGameBtn = document.getElementById("new-game-btn");
+
+    function announce(message) {
+      announcerEl.textContent = "";
+      requestAnimationFrame(() => {
+        announcerEl.textContent = message;
+      });
+
+      if (voiceEnabled && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.rate = 1.05;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function initGame(shouldSpeak = true) {
+      secretWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+      currentRow = 0;
+      currentCol = 0;
+      gameOver = false;
+      keyStatuses = {};
+      grid = Array.from({ length: 6 }, () => Array(5).fill(""));
+
+      renderBoard();
+      renderKeyboard();
+
+      const msg = "New game started. Row 1 of 6. Type a 5-letter word.";
+      if (shouldSpeak) {
+        announce(msg);
+      } else {
+        announcerEl.textContent = msg;
+      }
+    }
+
+    function renderBoard() {
+      boardEl.innerHTML = "";
+      for (let r = 0; r < 6; r++) {
+        const rowEl = document.createElement("div");
+        rowEl.className = "row";
+        rowEl.setAttribute("role", "group");
+        rowEl.setAttribute("aria-label", `Guess ${r + 1} of 6`);
+
+        for (let c = 0; c < 5; c++) {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          tile.id = `tile-${r}-${c}`;
+          tile.setAttribute("role", "img");
+          tile.setAttribute("aria-label", `Row ${r + 1}, Column ${c + 1}: empty`);
+          rowEl.appendChild(tile);
+        }
+        boardEl.appendChild(rowEl);
+      }
+    }
+
+    function renderKeyboard() {
+      keyboardEl.innerHTML = "";
+      KEYBOARD_ROWS.forEach((row) => {
+        const rowEl = document.createElement("div");
+        rowEl.className = "kb-row";
+
+        row.forEach((key) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "key" + (key.length > 1 ? " wide" : "");
+          btn.dataset.key = key;
+
+          if (key === "BACKSPACE") {
+            btn.textContent = "⌫ Del";
+            btn.setAttribute("aria-label", "Backspace, delete last letter");
+          } else if (key === "ENTER") {
+            btn.textContent = "Enter";
+            btn.setAttribute("aria-label", "Enter, submit guess");
+          } else {
+            const letterSpan = document.createElement("span");
+            letterSpan.className = "key-letter";
+            letterSpan.textContent = key;
+
+            const subSpan = document.createElement("span");
+            subSpan.className = "key-sub";
+            subSpan.setAttribute("aria-hidden", "true");
+
+            btn.appendChild(letterSpan);
+            btn.appendChild(subSpan);
+            btn.setAttribute("aria-label", `${key}, unused`);
+          }
+
+          btn.addEventListener("click", () => handleInput(key));
+          rowEl.appendChild(btn);
+        });
+
+        keyboardEl.appendChild(rowEl);
+      });
+    }
+
+    function updateTileVisual(r, c, letter, status = null) {
+      const tile = document.getElementById(`tile-${r}-${c}`);
+      tile.innerHTML = "";
+
+      if (letter) {
+        tile.appendChild(document.createTextNode(letter));
+        tile.classList.add("filled");
+      } else {
+        tile.classList.remove("filled");
+      }
+
+      if (status) {
+        const meta = STATUS_META[status];
+        tile.classList.add(status);
+
+        const icon = document.createElement("span");
+        icon.className = "status-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = meta.symbol;
+        tile.appendChild(icon);
+
+        tile.setAttribute(
+          "aria-label",
+          `Row ${r + 1}, Column ${c + 1}: ${letter}, ${meta.label}`
+        );
+      } else {
+        tile.setAttribute(
+          "aria-label",
+          letter
+            ? `Row ${r + 1}, Column ${c + 1}: ${letter}`
+            : `Row ${r + 1}, Column ${c + 1}: empty`
+        );
+      }
+    }
+
+    function updateKeyboardVisual(letter, newStatus) {
+      const priority = { correct: 3, present: 2, absent: 1 };
+      const currentStatus = keyStatuses[letter];
+
+      if (!currentStatus || priority[newStatus] > priority[currentStatus]) {
+        keyStatuses[letter] = newStatus;
+      }
+
+      const finalStatus = keyStatuses[letter];
+      const meta = STATUS_META[finalStatus];
+      const btn = keyboardEl.querySelector(`button[data-key="${letter}"]`);
+
+      if (btn) {
+        btn.classList.remove("correct", "present", "absent");
+        btn.classList.add(finalStatus);
+        const sub = btn.querySelector(".key-sub");
+        if (sub) sub.textContent = meta.symbol;
+        btn.setAttribute("aria-label", `${letter}, ${meta.label}`);
+      }
+    }
+
+    function handleInput(key) {
+      if (gameOver) {
+        announce("The game is over. Press New Game to play again.");
+        return;
+      }
+
+      if (key === "BACKSPACE") {
+        if (currentCol > 0) {
+          currentCol--;
+          const removed = grid[currentRow][currentCol];
+          grid[currentRow][currentCol] = "";
+          updateTileVisual(currentRow, currentCol, "");
+          announce(`Removed ${removed}. Current letters: ${grid[currentRow].join(" ") || "none"}.`);
+        } else {
+          announce("Nothing to delete.");
+        }
+        return;
+      }
+
+      if (key === "ENTER") {
+        submitGuess();
+        return;
+      }
+
+      if (/^[A-Z]$/.test(key)) {
+        if (currentCol < 5) {
+          grid[currentRow][currentCol] = key;
+          updateTileVisual(currentRow, currentCol, key);
+          currentCol++;
+          const spacedLetters = grid[currentRow].filter(Boolean).join(" ");
+          announce(`${key}, letter ${currentCol} of 5. Current letters: ${spacedLetters}.`);
+        } else {
+          announce("5 letters entered. Press Enter to submit your guess or Backspace to edit.");
+        }
+      }
+    }
+
+    function evaluateGuess(guess, target) {
+      const result = Array(5).fill("absent");
+      const targetLetters = target.split("");
+      const guessLetters = guess.split("");
+
+      for (let i = 0; i < 5; i++) {
+        if (guessLetters[i] === targetLetters[i]) {
+          result[i] = "correct";
+          targetLetters[i] = null;
+          guessLetters[i] = null;
+        }
+      }
+
+      for (let i = 0; i < 5; i++) {
+        if (guessLetters[i] !== null) {
+          const foundIndex = targetLetters.indexOf(guessLetters[i]);
+          if (foundIndex !== -1) {
+            result[i] = "present";
+            targetLetters[foundIndex] = null;
+          }
+        }
+      }
+
+      return result;
+    }
+
+    function submitGuess() {
+      if (currentCol < 5) {
+        announce(`Not enough letters. You entered ${currentCol} of 5 letters.`);
+        return;
+      }
+
+      const guess = grid[currentRow].join("");
+      const statuses = evaluateGuess(guess, secretWord);
+
+      const breakdown = [];
+      for (let i = 0; i < 5; i++) {
+        const letter = guess[i];
+        const status = statuses[i];
+        updateTileVisual(currentRow, i, letter, status);
+        updateKeyboardVisual(letter, status);
+        breakdown.push(`${letter} ${STATUS_META[status].label}`);
+      }
+
+      const guessNumber = currentRow + 1;
+      const summaryText = `Guess ${guessNumber}, ${guess}: ${breakdown.join(", ")}.`;
+
+      if (guess === secretWord) {
+        gameOver = true;
+        announce(`${summaryText} Congratulations! You guessed the word ${secretWord} in ${guessNumber} ${guessNumber === 1 ? "try" : "tries"}!`);
+        return;
+      }
+
+      currentRow++;
+      currentCol = 0;
+
+      if (currentRow === 6) {
+        gameOver = true;
+        announce(`${summaryText} Game over! Out of tries. The secret word was ${secretWord}.`);
+      } else {
+        const remaining = 6 - currentRow;
+        announce(`${summaryText} ${remaining} ${remaining === 1 ? "try" : "tries"} remaining.`);
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      const key = e.key.toUpperCase();
+      if (key === "BACKSPACE" || key === "DELETE") {
+        if (document.activeElement?.tagName === "BUTTON") return;
+        handleInput("BACKSPACE");
+      } else if (key === "ENTER") {
+        if (document.activeElement?.tagName === "BUTTON") return;
+        handleInput("ENTER");
+      } else if (/^[A-Z]$/.test(key)) {
+        handleInput(key);
+      }
+    });
+
+    voiceToggleBtn.addEventListener("click", () => {
+      voiceEnabled = !voiceEnabled;
+      voiceToggleBtn.setAttribute("aria-pressed", String(voiceEnabled));
+      voiceToggleBtn.textContent = `Voice Readout: ${voiceEnabled ? "On" : "Off"}`;
+      if (voiceEnabled) {
+        announce("Voice readout enabled.");
+      } else if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    });
+
+    themeToggleBtn.addEventListener("click", () => {
+      const isDark = document.body.classList.toggle("dark-contrast");
+      themeToggleBtn.setAttribute("aria-pressed", String(isDark));
+      themeToggleBtn.textContent = `Dark Contrast: ${isDark ? "On" : "Off"}`;
+      announce(`Switched to ${isDark ? "high-contrast dark" : "high-contrast daylight"} theme.`);
+    });
+
+    newGameBtn.addEventListener("click", () => initGame(true));
+
+    // Initialize quietly on first load (browsers require a user click/keypress before speaking)
+    initGame(false);
+  </script>
+</body>
+</html>
