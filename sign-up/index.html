@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Group Sign-Up Sheet</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom focus styles for high accessibility */
+        :focus-visible {
+            outline: 3px solid #7c3aed;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 h-full flex flex-col justify-between font-sans antialiased">
+
+    <!-- Skip to main content link for keyboard users -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-brand-700 focus:text-white focus:font-semibold">
+        Skip to main content
+    </a>
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-slate-200 py-6 px-4 sm:px-8 shadow-sm" role="banner">
+        <div class="max-w-3xl mx-auto flex items-center justify-between">
+            <div>
+                <span class="inline-block bg-brand-100 text-brand-800 text-xs font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wide mb-1">Interactive Form</span>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Study Group Sign-Up Sheet</h1>
+            </div>
+            <div id="status-badge" class="hidden items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-medium px-3 py-1.5 rounded-full border border-emerald-200" role="status">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>Viewing pre-filled submission</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-8 py-8" role="main">
+
+        <!-- Intro Description Card -->
+        <section aria-labelledby="instructions-heading" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-8">
+            <h2 id="instructions-heading" class="text-lg font-semibold text-slate-900 mb-2">Instructions</h2>
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-4">
+                Fill out the sign-up sheet below with your details, session preference, and contribution. Once you submit, a unique shareable link containing your encoded answers will be generated instantly. Anyone opening that link will see the form pre-filled with your exact responses!
+            </p>
+            <div class="flex flex-wrap gap-4 text-xs font-medium text-slate-500 border-t border-slate-100 pt-4">
+                <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <span>Fully Keyboard Accessible</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    <span>URL Parameter Sharing</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sign-Up Form -->
+        <section aria-labelledby="form-heading" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
+            <h2 id="form-heading" class="text-xl font-semibold text-slate-900 mb-6 pb-4 border-b border-slate-100">Sign-Up Details</h2>
+
+            <form id="signup-form" novalidate class="space-y-6">
+
+                <!-- Full Name -->
+                <div>
+                    <label for="name" class="block text-sm font-semibold text-slate-800 mb-2">
+                        Full Name <span class="text-rose-600" aria-hidden="true">*</span><span class="sr-only"> (required)</span>
+                    </label>
+                    <input type="text" id="name" name="name" required
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all text-sm sm:text-base"
+                        placeholder="e.g., Jane Doe"
+                        aria-describedby="name-error">
+                    <p id="name-error" class="mt-1.5 text-xs text-rose-600 hidden" role="alert"></p>
+                </div>
+
+                <!-- Email Address -->
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-slate-800 mb-2">
+                        Email Address <span class="text-rose-600" aria-hidden="true">*</span><span class="sr-only"> (required)</span>
+                    </label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all text-sm sm:text-base"
+                        placeholder="e.g., jane.doe@example.com"
+                        aria-describedby="email-error">
+                    <p id="email-error" class="mt-1.5 text-xs text-rose-600 hidden" role="alert"></p>
+                </div>
+
+                <!-- Which Session (Radio Group) -->
+                <fieldset class="space-y-3">
+                    <legend class="block text-sm font-semibold text-slate-800 mb-2">
+                        Which Session <span class="text-rose-600" aria-hidden="true">*</span><span class="sr-only"> (required)</span>
+                    </legend>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" role="radiogroup" aria-required="true">
+                        <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-brand-600 hover:bg-brand-50/50 cursor-pointer transition-all">
+                            <input type="radio" name="session" value="Morning (9 AM - 11 AM)" class="w-4 h-4 text-brand-600 focus:ring-brand-600" required>
+                            <span class="text-sm font-medium text-slate-700">Morning (9 AM)</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-brand-600 hover:bg-brand-50/50 cursor-pointer transition-all">
+                            <input type="radio" name="session" value="Afternoon (1 PM - 3 PM)" class="w-4 h-4 text-brand-600 focus:ring-brand-600">
+                            <span class="text-sm font-medium text-slate-700">Afternoon (1 PM)</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3.5 rounded-xl border border-slate-200 hover:border-brand-600 hover:bg-brand-50/50 cursor-pointer transition-all">
+                            <input type="radio" name="session" value="Evening (6 PM - 8 PM)" class="w-4 h-4 text-brand-600 focus:ring-brand-600">
+                            <span class="text-sm font-medium text-slate-700">Evening (6 PM)</span>
+                        </label>
+                    </div>
+                    <p id="session-error" class="mt-1.5 text-xs text-rose-600 hidden" role="alert"></p>
+                </fieldset>
+
+                <!-- What you are bringing -->
+                <div>
+                    <label for="bringing" class="block text-sm font-semibold text-slate-800 mb-2">
+                        What you are bringing <span class="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <input type="text" id="bringing" name="bringing"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all text-sm sm:text-base"
+                        placeholder="e.g., Whiteboard markers, vegan snacks, study notes">
+                </div>
+
+                <!-- Notes / Dietary Restrictions / Questions -->
+                <div>
+                    <label for="notes" class="block text-sm font-semibold text-slate-800 mb-2">
+                        Notes or Questions <span class="text-slate-400 font-normal">(Optional)</span>
+                    </label>
+                    <textarea id="notes" name="notes" rows="3"
+                        class="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 placeholder-slate-400 focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 transition-all text-sm sm:text-base"
+                        placeholder="Any extra details or accessibility requirements..."></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row items-center gap-3 pt-4 border-t border-slate-100">
+                    <button type="submit"
+                        class="w-full sm:w-auto px-6 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all focus:ring-4 focus:ring-brand-600/30">
+                        Generate Shareable Link
+                    </button>
+                    <button type="button" id="reset-btn"
+                        class="w-full sm:w-auto px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all focus:ring-4 focus:ring-slate-300/50">
+                        Reset Form
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+        <!-- Result / Share Link Modal / Section -->
+        <section id="result-section" aria-labelledby="result-heading" class="hidden mt-8 bg-brand-50 border border-brand-100 rounded-2xl p-6 sm:p-8" tabindex="-1">
+            <div class="flex items-start gap-4">
+                <div class="p-3 bg-brand-600 text-white rounded-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                </div>
+                <div class="flex-grow">
+                    <h2 id="result-heading" class="text-xl font-bold text-slate-900 mb-1">Your Shareable Link is Ready!</h2>
+                    <p class="text-slate-600 text-sm mb-4">Copy the link below and send it to whoever is organizing. Anyone opening this link will see your form filled out automatically.</p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="shareable-link-input" readonly
+                            class="flex-grow px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-sm select-all"
+                            aria-label="Shareable Link">
+                        <button type="button" id="copy-btn"
+                            class="px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl transition-all text-sm flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            <span id="copy-btn-text">Copy Link</span>
+                        </button>
+                    </div>
+                    <div id="copy-announcement" class="sr-only" aria-live="polite"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 px-4 text-center text-slate-500 text-xs mt-12" role="contentinfo">
+        <p>Accessible Sign-Up Web Application &bull; Fully navigable via keyboard and assistive technologies.</p>
+    </footer>
+
+    <!-- JavaScript Handling Form State and URL Parameter Encoding/Decoding -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('signup-form');
+            const resetBtn = document.getElementById('reset-btn');
+            const resultSection = document.getElementById('result-section');
+            const shareableLinkInput = document.getElementById('shareable-link-input');
+            const copyBtn = document.getElementById('copy-btn');
+            const copyBtnText = document.getElementById('copy-btn-text');
+            const copyAnnouncement = document.getElementById('copy-announcement');
+            const statusBadge = document.getElementById('status-badge');
+
+            // 1. Decode URL parameters on page load if present
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('name') || urlParams.has('email') || urlParams.has('session')) {
+                const name = urlParams.get('name') || '';
+                const email = urlParams.get('email') || '';
+                const session = urlParams.get('session') || '';
+                const bringing = urlParams.get('bringing') || '';
+                const notes = urlParams.get('notes') || '';
+
+                if (name) document.getElementById('name').value = name;
+                if (email) document.getElementById('email').value = email;
+                
+                if (session) {
+                    const sessionRadio = document.querySelector(`input[name="session"][value="${CSS.escape(session)}"]`);
+                    if (sessionRadio) sessionRadio.checked = true;
+                }
+
+                if (bringing) document.getElementById('bringing').value = bringing;
+                if (notes) document.getElementById('notes').value = notes;
+
+                // Show status badge
+                statusBadge.classList.remove('hidden');
+                statusBadge.classList.add('flex');
+            }
+
+            // 2. Handle form submission and generate URL parameters
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Clear previous errors
+                document.querySelectorAll('[id$="-error"]').forEach(el => {
+                    el.textContent = '';
+                    el.classList.add('hidden');
+                });
+                document.querySelectorAll('input, textarea').forEach(el => el.classList.remove('border-rose-600'));
+
+                let isValid = true;
+
+                // Validate Name
+                const nameInput = document.getElementById('name');
+                if (!nameInput.value.trim()) {
+                    showError('name', 'Please enter your full name.');
+                    isValid = false;
+                }
+
+                // Validate Email
+                const emailInput = document.getElementById('email');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailInput.value.trim()) {
+                    showError('email', 'Please enter your email address.');
+                    isValid = false;
+                } else if (!emailRegex.test(emailInput.value.trim())) {
+                    showError('email', 'Please enter a valid email address.');
+                    isValid = false;
+                }
+
+                // Validate Session Radio
+                const selectedSession = document.querySelector('input[name="session"]:checked');
+                if (!selectedSession) {
+                    showError('session', 'Please select a session.');
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    // Focus first invalid element
+                    const firstInvalid = form.querySelector('.border-rose-600');
+                    if (firstInvalid) firstInvalid.focus();
+                    return;
+                }
+
+                // Build URL parameters
+                const params = new URLSearchParams();
+                params.set('name', nameInput.value.trim());
+                params.set('email', emailInput.value.trim());
+                if (selectedSession) params.set('session', selectedSession.value);
+                
+                const bringingVal = document.getElementById('bringing').value.trim();
+                if (bringingVal) params.set('bringing', bringingVal);
+
+                const notesVal = document.getElementById('notes').value.trim();
+                if (notesVal) params.set('notes', notesVal);
+
+                const shareableURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+
+                // Display result section
+                shareableLinkInput.value = shareableURL;
+                resultSection.classList.remove('hidden');
+                resultSection.focus();
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            function showError(fieldId, message) {
+                const errorEl = document.getElementById(`${fieldId}-error`);
+                if (errorEl) {
+                    errorEl.textContent = message;
+                    errorEl.classList.remove('hidden');
+                } else {
+                    // For radio group
+                    const sessionError = document.getElementById('session-error');
+                    if (sessionError) {
+                        sessionError.textContent = message;
+                        sessionError.classList.remove('hidden');
+                    }
+                }
+                const inputEl = document.getElementById(fieldId);
+                if (inputEl) inputEl.classList.add('border-rose-600');
+            }
+
+            // 3. Handle Copy Link Button (using safe execCommand fallback for iframe restrictions)
+            copyBtn.addEventListener('click', () => {
+                shareableLinkInput.select();
+                shareableLinkInput.setSelectionRange(0, 99999); // For mobile devices
+
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        copyBtnText.textContent = 'Copied!';
+                        copyBtn.classList.remove('bg-slate-900', 'hover:bg-slate-800');
+                        copyBtn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                        copyAnnouncement.textContent = 'Link copied to clipboard successfully.';
+
+                        setTimeout(() => {
+                            copyBtnText.textContent = 'Copy Link';
+                            copyBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                            copyBtn.classList.add('bg-slate-900', 'hover:bg-slate-800');
+                        }, 2500);
+                    } else {
+                        alert('Could not copy link automatically. Please copy it manually.');
+                    }
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                }
+            });
+
+            // 4. Reset Form Button
+            resetBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset the form?')) {
+                    form.reset();
+                    resultSection.classList.add('hidden');
+                    statusBadge.classList.add('hidden');
+                    statusBadge.classList.remove('flex');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    document.getElementById('name').focus();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
